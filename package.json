@@ -1,0 +1,23 @@
+{
+  "name": "spoofbrowser_v1_c",
+  "version": "1.0.0",
+  "description": "Tired of having single browser with multiple tab opened? Or wanting to have a application that opens many browser twice as fast with half CPU usage needed? Try this app out now!",
+  "scripts": {
+    "start": "electron ."
+  },
+  "main": "./app/main.js",
+  "repository": "https://github.com/ericz99/spoofbrowser.git",
+  "author": "Eric Zhang",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^7.1.2",
+    "electron-builder": "^21.2.0"
+  },
+  "dependencies": {
+    "@types/node": "^12.12.17",
+    "discord-rich-presence": "^0.0.8",
+    "electron-is-dev": "^1.1.0",
+    "electron-reload": "^1.5.0",
+    "electron-settings": "^3.2.0"
+  }
+}

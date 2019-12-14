@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <!-- External libary -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="./css/main.css" />
+    <title>SpoofBrowser</title>
+  </head>
+  <body>
+    <!-- MAIN WRAPPER -->
+    <div id="wrapper">
+      <!-- NAVIGATION -->
+      <div id="tabSelectors">
+        <div class="tab tabSelectActive" id="tabBrowserView">
+          View Instances
+        </div>
+        <div class="tab" id="tabSettings">Settings</div>
+      </div>
+      <!-- END OF NAVIGATION -->
+
+      <!-- HEADER -->
+      <h1 class="title">BROWSER LIST</h1>
+      <!-- END OF HEADER -->
+
+      <!-- CONTROLLERS -->
+      <div class="controllers">
+        <div class="btnGroup">
+          <button type="button" class="btn btn-primary" id="createLocalTaskBtn">
+            Add Local Task
+          </button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            id="createProxyTaskBtn"
+          >
+            Add Proxy Task
+          </button>
+          <button
+            type="button"
+            class="btn btn-success"
+            id="launchAllInstanceBtn"
+          >
+            Launch All Instance
+          </button>
+          <button type="button" class="btn btn-info" id="toggleAllInstanceBtn">
+            Toggle All Instance
+          </button>
+        </div>
+      </div>
+
+      <!-- BROWSER TASK -->
+      <div id="browser-pool">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">PROXY</th>
+              <th scope="col">TITLE</th>
+              <th scope="col">STATUS</th>
+              <th scope="col">CONTROLS</th>
+            </tr>
+          </thead>
+          <tbody id="tasks"></tbody>
+        </table>
+      </div>
+    </div>
+    <!-- END OF WRAPPER -->
+
+    <!-- JAVASCRIPT -->
+    <script src="./js/loader.js"></script>
+    <script src="./js/instance.js"></script>
+  </body>
+</html>
