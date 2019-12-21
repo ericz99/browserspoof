@@ -1,4 +1,4 @@
-## Spoofbrowser
+## Browserspoof
 
 Tired of having single browser with multiple tab opened? Or wanting to have a application that opens many browser twice as fast with half CPU usage needed? Try this app out now!
 
@@ -6,7 +6,7 @@ Really easy solution when you want to spoof location using proxy.
 
 ### Installation
 
-Spoofbrowser requires the following...
+Browserspoof requires the following...
 
 - [Node.js (LTS Version)](http://nodejs.org/)
 - [YarnPKG](https://yarnpkg.com/lang/en/docs/install/#windows-stable)
@@ -19,7 +19,7 @@ Quick start:
 yarn install
 
 # Run application
-yarn run start
+yarn run start OR double click start.bat
 
 # To update code
 git pull
@@ -37,6 +37,12 @@ Features:
 # Able to clear cookie of the browser ✅
 
 ```
+
+## Todo
+
+- [ ] Clear cookie browser window
+- [ ] Auofill configuration
+- [ ] Able to refresh instance
 
 ## Bugs?
 

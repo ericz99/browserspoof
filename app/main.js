@@ -2,26 +2,39 @@
  * @Author: eric.zhang
  * @Date: 2019-12-12 22:07:23
  * @Last Modified by: eric.zhang
- * @Last Modified time: 2019-12-14 00:42:14
+ * @Last Modified time: 2019-12-19 10:01:50
  */
 
-const { app, BrowserWindow, Menu, ipcMain } = require("electron");
-const client = require("discord-rich-presence")("654913152667877396");
+const {
+  app,
+  BrowserWindow,
+  Menu,
+  ipcMain,
+  session,
+  Notification
+} = require("electron");
 const path = require("path");
 
 // # Autoreload
 require("electron-reload")(path.resolve(__dirname, ".."));
 
-// # Discord RPC
-client.updatePresence({
-  state: "Version 0.0.1-alpha",
-  details: "Killing the browsers",
-  startTimestamp: Date.now(),
-  endTimestamp: Date.now() + 1337,
-  largeImageKey: "largeimage",
-  smallImageKey: "🧐",
-  instance: true
-});
+// # GC per process
+function scheduleGc() {
+  if (!global.gc) {
+    console.log("Garbage collection is not exposed");
+    return;
+  }
+
+  const nextMinutes = Math.random() * 30 + 15;
+
+  setTimeout(function() {
+    global.gc();
+    console.log("Manual gc", process.memoryUsage());
+    scheduleGc();
+  }, nextMinutes * 60 * 1000);
+}
+
+scheduleGc();
 
 // # Main window
 let mainWin;
@@ -33,7 +46,7 @@ function initWindow() {
   app.on("ready", () => {
     // Create the browser window.
     mainWin = new BrowserWindow({
-      width: 1200,
+      width: 1300,
       height: 800,
       resizable: false,
       center: true,
@@ -57,7 +70,7 @@ function initWindow() {
     mainWin.setMenu(null);
 
     // Open the DevTools.
-    mainWin.webContents.openDevTools();
+    // mainWin.webContents.openDevTools();
 
     // Emitted when the window is closed.
     mainWin.on("closed", () => {
@@ -72,77 +85,151 @@ function initWindow() {
 // # Initalize window
 initWindow();
 
-const localTasks = [];
-
 // # CREATE NEW LOCAL TASk
-ipcMain.on("newLocalTask", (evt, data) => {
+ipcMain.on("newInstanceTask", (evt, data) => {
   console.log("creating task");
-  localTasks.push(new LocalTaskInstance(data.id, data.url, data.proxy));
-});
-
-// # LAUNCH ALL INSTANCE
-ipcMain.on("launch-all-instance", (evt, data) => {
-  console.log("launching all tasks");
-  let taskIndex = 0;
-  for (let i = 0; i < localTasks.length; i++) {
-    taskIndex++;
-    if (!localTasks[i].isLaunched) {
-      localTasks[i].launchBrowser();
-      mainWin.webContents.send(`launchBrowser taskId-${taskIndex} hide`);
-    }
-  }
+  new LocalTaskInstance(data.id, data.url, data.proxy);
 });
 
 // # TOGGLE ALL INSTANCE
 ipcMain.on("toggle-all-instance", (evt, data) => {
+  const getAllChild = mainWin.getChildWindows();
   let taskIndex = 0;
-  for (let i = 0; i < localTasks.length; i++) {
+  for (let i = 0; i < getAllChild.length; i++) {
     taskIndex++;
-    localTasks[i].toggleBrowser();
+    if (!getAllChild[i].isVisible()) {
+      getAllChild[i].show();
+      mainWin.webContents.send(
+        `browserTask taskId-${taskIndex} SetStatus`,
+        "Open"
+      );
+    } else {
+      getAllChild[i].hide();
+      mainWin.webContents.send(
+        `browserTask taskId-${taskIndex} SetStatus`,
+        "Close"
+      );
+    }
+  }
+});
+
+// # MASS RELOAD BROWSER
+ipcMain.on("mass-reload-all", evt => {
+  const getAllChild = mainWin.getChildWindows();
+
+  if (getAllChild.length > 0) {
+    for (let i = 0; i < getAllChild.length; i++) {
+      getAllChild[i].reload();
+    }
   }
 });
 
 class LocalTaskInstance {
   constructor(id, url, proxy) {
     this.id = id;
-    this.proxy = proxy == null ? "Local IP" : proxy;
+    this.proxyHostPort = this.getProxyHostPort(proxy);
+    this.proxy = this.getProxyData(proxy);
+    this.mainProxy = proxy;
     this.url = url;
     this.win = null;
     this.status = "";
     this.isLaunched = false;
+    this.isDeleted = false;
 
     // # initalize instance
     this.init();
   }
 
   init() {
-    this.setStatus("Idle");
+    this.setStatus("Not Launch");
 
     // # LAUNCH BROWSER BUT LET IT STAY HIDDEN
     ipcMain.on(`launchBrowser taskId-${this.id}`, evt => {
-      this.launchBrowser();
-      mainWin.webContents.send(`launchBrowser taskId-${this.id} hide`);
+      if (!this.isLaunched && !this.isDeleted) {
+        this.launchBrowser();
+        mainWin.webContents.send(`launchBrowser taskId-${this.id} hide`);
+      }
+    });
+
+    // # LAUNCH ALL BROWSER BUT LET IT STAY HIDDEN
+    ipcMain.on(`launch-all-instance`, evt => {
+      if (!this.isLaunched && !this.isDeleted) {
+        this.launchBrowser();
+        mainWin.webContents.send(`launchBrowser taskId-${this.id} hide`);
+      }
     });
 
     // # LISTEN TO OPEN BROSWER EVENT
     ipcMain.on(`toggleBrowser taskId-${this.id}`, evt => {
-      this.toggleBrowser();
+      if (this.isLaunched) {
+        this.toggleBrowser();
+      }
     });
 
     // # LISTEN TO DELETE TASK EVENT
     ipcMain.on(`delete taskId-${this.id}`, evt => {
-      // this.toggleBrowser();
-      console.log(mainWin.getChildWindows());
+      if (this.isLaunched) {
+        // # JUST DESTROY THE WINDOW AND IT WON"T BE USED
+        this.win.destroy();
+        // # SET AS DELETE SO IT WON"T BE USED AND WILL BE GC
+        this.isDeleted = true;
+      } else {
+        // # SET AS DELETE SO IT WON"T BE USED AND WILL BE GC
+        this.isDeleted = true;
+      }
     });
+
+    // # LISTEN TO CLEAR COOKIE CACHE
+    ipcMain.on(`clearCookie taskId-${this.id}`, evt => {
+      console.log("cleared cookie");
+      if (this.isLaunched) {
+        // # clear cache
+        // this.win.webContents.session.clearStorageData(); // do not use
+        // this.win.webContents.session.defaultSession.clearCache();
+        console.log(this.win.getTitle());
+        console.log(this.win.webContents.session);
+        // # reload browser
+        this.win.reload();
+      }
+    });
+  }
+
+  getProxyData(proxy) {
+    if (proxy) {
+      const splitProxy = proxy.split(":");
+      const hostPort = `${splitProxy[0]}:${splitProxy[1]}`;
+
+      // # ONLY RETURN IF PROXY IS USER PASS
+      if (splitProxy.length > 2) {
+        return {
+          host: splitProxy[0],
+          port: splitProxy[1],
+          user: splitProxy[2],
+          pass: splitProxy[3]
+        };
+      }
+
+      // ELSE ITS IP AUTH
+      return {
+        host: splitProxy[0],
+        port: splitProxy[1]
+      };
+    }
+  }
+
+  getProxyHostPort(proxy) {
+    if (proxy) {
+      const splitProxy = proxy.split(":");
+      const final = splitProxy[0] + ":" + splitProxy[1];
+      return final;
+    }
   }
 
   // LAUNCH BROWSER
   launchBrowser() {
+    this.setStatus("Open");
     // # SET LAUNCH TO TRUE
     this.isLaunched = true;
-    // # SET STATUS
-
-    this.setStatus("Launched Browser");
     // # remove application menu
     Menu.setApplicationMenu(null);
 
@@ -150,29 +237,64 @@ class LocalTaskInstance {
     this.win = new BrowserWindow({
       width: 500,
       height: 500,
-      resizable: false,
+      resizable: true,
       fullscreenable: false,
-      title: `${this.proxy} - taskId-${this.id}`,
+      title: `${
+        this.proxyHostPort == null ? "Local IP" : this.proxyHostPort
+      } - taskId-${this.id}`,
       icon: path.resolve(__dirname, "img", "icon-win.ico"),
       show: true,
       parent: mainWin,
       webPreferences: {
-        nodeIntegration: true
+        nodeIntegration: true,
+        webSecurity: false,
+        session,
+        partition: `persist:task_id_${this.id}`
       }
     });
 
-    // and load the index.html of the app.
-    this.win.loadURL("https://yeezysupply.com", {
-      userAgent:
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
-    });
+    // # load using proxy or not
+    if (this.proxy) {
+      this.win.webContents.session.setProxy(
+        {
+          proxyRules: this.proxyHostPort
+        },
+        () => {}
+      );
+
+      // # LOAD CUSTOM WEB
+      this.win.loadURL("https://www.yeezysupply.com/product/FX4145", {
+        userAgent:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
+      });
+
+      // # LOGIN IF PROXY HAVE USER PASS
+      this.win.webContents.on(
+        "login",
+        (event, authenticationResponseDetails, authInfo, callback) => {
+          if (authInfo.isProxy) {
+            event.preventDefault();
+            // # FILL
+            callback(this.proxy.user, this.proxy.pass); //supply credentials to server
+          }
+        }
+      );
+    } else {
+      this.win.loadURL("https://www.yeezysupply.com/product/FX4145", {
+        userAgent:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
+      });
+    }
 
     // Set Menu to null
     this.win.setMenu(null);
 
     // # Fixed title not showing
-    this.win.on("page-title-updated", evt => {
+    this.win.on("page-title-updated", (evt, title) => {
       evt.preventDefault();
+      // # update title when title update
+      mainWin.webContents.send(`browserTask taskId-${this.id} SetTitle`, title);
+      // # if title change, notify user
     });
 
     // Emitted when the window is closed.
@@ -191,15 +313,19 @@ class LocalTaskInstance {
     if (!win.isVisible()) {
       // # show browser
       win.show();
+      // # update status
+      this.setStatus("Open");
     } else {
       // # hide browser
       win.hide();
+      // # update status
+      this.setStatus("Close");
     }
   }
 
   // # SET STATUS COMMAND
   setStatus(status) {
     this.status = status;
-    mainWin.webContents.send(`localTask taskId-${this.id} SetStatus`, status);
+    mainWin.webContents.send(`browserTask taskId-${this.id} SetStatus`, status);
   }
 }
