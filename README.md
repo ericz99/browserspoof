@@ -1,8 +1,6 @@
 ## Browserspoof
 
-Tired of having single browser with multiple tab opened? Or wanting to have a application that opens many browser twice as fast with half CPU usage needed? Try this app out now!
-
-Really easy solution when you want to spoof location using proxy.
+Free opensource browser spoofer.
 
 ### Installation
 
@@ -16,10 +14,10 @@ Quick start:
 ```bash
 
 # Install dependencies
-yarn install
+yarn install OR double click start.bat
 
 # Run application
-yarn run start OR double click start.bat
+yarn run start
 
 # To update code
 git pull
@@ -33,10 +31,14 @@ Features:
 # Simple UI ✅
 # Able to spoof locally with no proxy ✅
 # Proxy Support for each unique browser ✅
-# Autofill configuration w/ Selector Configuration ✅
 # Able to clear cookie of the browser ✅
 
 ```
+
+## Screenshots
+
+![1](https://i.imgur.com/tQIlafv.png)
+![2](https://i.imgur.com/R4OpVXe.png)
 
 ## Todo
 

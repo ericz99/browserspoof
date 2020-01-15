@@ -1,165 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <!-- External libary -->
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-      crossorigin="anonymous"
-    />
-    <link rel="stylesheet" href="./css/main.css" />
-    <title>SpoofBrowser</title>
-  </head>
-  <body class="preload">
-    <!-- MAIN WRAPPER -->
-    <div id="wrapper">
-      <!-- NAVIGATION -->
-      <div id="tabSelectors">
-        <div class="tab tabSelectActive" id="tabBrowserView">
-          View Instances
-        </div>
-        <div class="tab" id="tabSettings">Settings</div>
-      </div>
-      <!-- END OF NAVIGATION -->
 
-      <!-- HEADER -->
-      <h1 class="title">BROWSER LIST</h1>
-      <!-- END OF HEADER -->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <!-- External libary -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
+  <link rel="stylesheet" href="./css/main.css" />
+  <title>BrowserSpoof</title>
+</head>
 
-      <!-- CONTROLLERS -->
-      <div class="controllers">
-        <div class="btnGroup">
-          <button type="button" class="btn btn-primary" id="createLocalTaskBtn">
-            Add Local Task
-          </button>
-          <button
-            type="button"
-            class="btn btn-secondary"
-            id="createProxyTaskBtn"
-          >
-            Add Proxy Task
-          </button>
-          <button
-            type="button"
-            class="btn btn-success"
-            id="launchAllInstanceBtn"
-          >
-            Launch All Instance
-          </button>
-          <button type="button" class="btn btn-info" id="toggleAllInstanceBtn">
-            Toggle All Instance
-          </button>
-          <button type="button" class="btn btn-warning" id="addBookMarkBtn">
-            Add Bookmark
-          </button>
-          <button type="button" class="btn btn-danger" id="massReloadBtn">
-            Mass Reload
-          </button>
-        </div>
-      </div>
-      <!-- END OF CONTROLLER -->
+<body class="preload">
+  <!-- MAIN WRAPPER -->
+  <div id="wrapper">
+    <!-- HEADER -->
+    <h1 class="title">BROWSER LIST</h1>
+    <!-- END OF HEADER -->
 
-      <!-- START MODAL -->
-      <div
-        class="modal fade"
-        id="autoFillConfig"
-        tabindex="-1"
-        role="dialog"
-        aria-labelledby="exampleModalCenterTitle"
-        aria-hidden="true"
-      >
-        <div
-          class="modal-dialog modal-dialog-centered modal-lg"
-          role="document"
-        >
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="modalHeader">
-                Autofill Editor Single
-              </h5>
-              <button
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body" id="selectorBody"></div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-outline-primary"
-                id="addSelectorBtn"
-              >
-                Add Selector
-              </button>
-              <button
-                type="button"
-                class="btn btn-outline-warning"
-                id="saveAutoFillConfigBtn"
-              >
-                Save
-              </button>
-              <button
-                type="button"
-                class="btn btn-outline-secondary"
-                data-dismiss="modal"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+    <!-- CONTROLLERS -->
+    <div class="controllers">
+      <div class="btnGroup">
+        <button type="button" class="btn btn-primary" id="createLocalTaskBtn">
+          Add Local Task
+        </button>
+        <button type="button" class="btn btn-secondary" id="createProxyTaskBtn">
+          Add Proxy Task
+        </button>
+        <button type="button" class="btn btn-success" id="launchAllInstanceBtn">
+          Launch All Instance
+        </button>
+        <button type="button" class="btn btn-info" id="toggleAllInstanceBtn">
+          Toggle All Instance
+        </button>
+        <button type="button" class="btn btn-warning" id="massReloadBtn">
+          Mass Reload
+        </button>
       </div>
-      <!-- END OF MODAL-->
 
-      <!-- BROWSER TASK -->
-      <div id="browser-pool">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">ID</th>
-              <th scope="col">PROXY</th>
-              <th scope="col">TITLE</th>
-              <th scope="col">STATUS</th>
-              <th scope="col">CONTROLS</th>
-            </tr>
-          </thead>
-          <tbody id="tasks"></tbody>
-        </table>
+      <div class="global-link">
+        <input type="text" id="global-url-input" placeholder="Enter a link">
       </div>
-      <!-- END OF BROWSER TASK-->
     </div>
-    <!-- END OF WRAPPER -->
+    <!-- END OF CONTROLLER -->
 
-    <!-- JAVASCRIPT -->
-    <script src="./js/loader.js"></script>
-    <script src="./js/instance.js"></script>
+    <!-- BROWSER TASK -->
+    <div id="browser-pool">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">PROXY</th>
+            <th scope="col">TITLE</th>
+            <th scope="col">STATUS</th>
+            <th scope="col">CONTROLS</th>
+          </tr>
+        </thead>
+        <tbody id="tasks"></tbody>
+      </table>
+    </div>
+    <!-- END OF BROWSER TASK-->
+  </div>
+  <!-- END OF WRAPPER -->
 
-    <script>
-      window.$ = window.jQuery = require("jquery");
-    </script>
+  <!-- JAVASCRIPT -->
+  <script src="./js/loader.js"></script>
 
-    <script
-      src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-      integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-      integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-      crossorigin="anonymous"
-    ></script>
-  </body>
+  <script>
+    window.$ = window.jQuery = require("jquery");
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+    integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+    crossorigin="anonymous"></script>
+</body>
+
 </html>

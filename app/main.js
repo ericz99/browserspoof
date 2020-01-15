@@ -14,27 +14,10 @@ const {
   Notification
 } = require("electron");
 const path = require("path");
+const UserAgent = require('user-agents');
 
 // # Autoreload
-require("electron-reload")(path.resolve(__dirname, ".."));
-
-// # GC per process
-function scheduleGc() {
-  if (!global.gc) {
-    console.log("Garbage collection is not exposed");
-    return;
-  }
-
-  const nextMinutes = Math.random() * 30 + 15;
-
-  setTimeout(function() {
-    global.gc();
-    console.log("Manual gc", process.memoryUsage());
-    scheduleGc();
-  }, nextMinutes * 60 * 1000);
-}
-
-scheduleGc();
+// require("electron-reload")(path.resolve(__dirname, ".."));
 
 // # Main window
 let mainWin;
@@ -135,6 +118,7 @@ class LocalTaskInstance {
     this.status = "";
     this.isLaunched = false;
     this.isDeleted = false;
+    this.userAgent = new UserAgent(/Chrome/, { deviceCategory: 'desktop' }).toString().replace(/\|"/g, "");
 
     // # initalize instance
     this.init();
@@ -239,9 +223,7 @@ class LocalTaskInstance {
       height: 500,
       resizable: true,
       fullscreenable: false,
-      title: `${
-        this.proxyHostPort == null ? "Local IP" : this.proxyHostPort
-      } - taskId-${this.id}`,
+      title: this.displayTitle(),
       icon: path.resolve(__dirname, "img", "icon-win.ico"),
       show: true,
       parent: mainWin,
@@ -259,13 +241,12 @@ class LocalTaskInstance {
         {
           proxyRules: this.proxyHostPort
         },
-        () => {}
+        () => { }
       );
 
       // # LOAD CUSTOM WEB
-      this.win.loadURL("https://www.yeezysupply.com/product/FX4145", {
-        userAgent:
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
+      this.win.loadURL(this.url, {
+        userAgent: this.userAgent
       });
 
       // # LOGIN IF PROXY HAVE USER PASS
@@ -280,9 +261,8 @@ class LocalTaskInstance {
         }
       );
     } else {
-      this.win.loadURL("https://www.yeezysupply.com/product/FX4145", {
-        userAgent:
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
+      this.win.loadURL(this.url, {
+        userAgent: this.userAgent
       });
     }
 
@@ -321,6 +301,13 @@ class LocalTaskInstance {
       // # update status
       this.setStatus("Close");
     }
+  }
+
+  // # set title
+  displayTitle() {
+    return `${
+      this.proxyHostPort == null ? "Local IP" : this.proxyHostPort
+      } - taskId-${this.id}`;
   }
 
   // # SET STATUS COMMAND

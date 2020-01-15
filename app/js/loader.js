@@ -10,10 +10,8 @@ const createProxyTaskBtn = getElement("id", "createProxyTaskBtn");
 const launchAllInstanceBtn = getElement("id", "launchAllInstanceBtn");
 const toggleAllInstanceBtn = getElement("id", "toggleAllInstanceBtn");
 const massReloadBtn = getElement("id", "massReloadBtn");
-const addSelectorBtn = getElement("id", "addSelectorBtn");
-const saveAutoFillConfigBtn = getElement("id", "saveAutoFillConfigBtn");
 const tasks = getElement("id", "tasks");
-const selectorBody = getElement("id", "selectorBody");
+const globalUrl = getElement("id", "global-url-input");
 
 // # CREATE LOCAL TASK EVENT LISENTER
 createLocalTaskBtn.addEventListener("click", createLocalTask);
@@ -23,10 +21,6 @@ createProxyTaskBtn.addEventListener("click", createProxyTask);
 launchAllInstanceBtn.addEventListener("click", launchAllInstance);
 // # TOGGLE ALL INSTANCE
 toggleAllInstanceBtn.addEventListener("click", toggleAllInstance);
-// # ADD SELECTOR TO AUTOFILL
-addSelectorBtn.addEventListener("click", addSelector);
-// # SAVE AUTOFILL CONFIG
-saveAutoFillConfigBtn.addEventListener("click", saveAutoFillConfig);
 // # MASS RELOAD BROWSERE
 massReloadBtn.addEventListener("click", massReload);
 
@@ -79,8 +73,6 @@ function createLocalTask(e) {
             <button type="button" class="btn btn-secondary btn-sm" id="launchBrowser taskId-${taskId}">Launch</button>
             <button type="button" class="btn btn-success btn-sm" id="toggleBrowser taskId-${taskId}">Toggle</button>
             <button type="button" class="btn btn-info btn-sm" id="clearCookie taskId-${taskId}">Clear Cookie</button>
-            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#autoFillConfig" id="autoFill taskId-${taskId}">AF</button>            
-            <button type="button" class="btn btn-warning btn-sm" id="focus taskId-${taskId}">Focus</button>
             <button type="button" class="btn btn-danger btn-sm" id="delete taskId-${taskId}">Delete</button>
         </div>
     </td>
@@ -144,7 +136,7 @@ function createLocalTask(e) {
   ipcRenderer.send("newInstanceTask", {
     id: taskId,
     proxy: null,
-    url: "https://www.yeezysupply.com/"
+    url: globalUrl.value
   });
 }
 
@@ -178,8 +170,6 @@ function createProxyTask(e) {
                     <button type="button" class="btn btn-secondary btn-sm" id="launchBrowser taskId-${taskId}">Launch</button>
                     <button type="button" class="btn btn-success btn-sm" id="toggleBrowser taskId-${taskId}">Toggle</button>
                     <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#autoFillConfig" id="clearCookie taskId-${taskId}">Clear Cookie</button>
-                    <button type="button" class="btn btn-primary btn-sm" id="autoFill taskId-${taskId}">AF</button>            
-                    <button type="button" class="btn btn-warning btn-sm" id="focus taskId-${taskId}">Focus</button>
                     <button type="button" class="btn btn-danger btn-sm" id="delete taskId-${taskId}">Delete</button>
                 </div>
             </td>
@@ -267,58 +257,13 @@ function createProxyTask(e) {
           ipcRenderer.send("newInstanceTask", {
             id: taskId,
             proxy: proxyList[i],
-            url: "https://www.yeezysupply.com/"
+            url: globalUrl.value
           });
         }
       }
     });
   });
 }
-
-// # ADD SELECTOR FUNCTION
-function addSelector(e) {
-  const selectorId = selectorBody.childElementCount + 1;
-  const selectorElem = document.createElement("div");
-  selectorElem.classList.add("form-group", "row");
-  selectorElem.setAttribute("id", `selector-${selectorId}`);
-
-  const template = `
-                <label
-                  for="colFormLabelSm"
-                  class="col-sm-2 col-form-label col-form-label-sm"
-                  >Selector ${selectorId}</label
-                >
-                <div class="col-sm-4">
-                  <input
-                    type="text"
-                    class="form-control form-control-sm"
-                    id="selectorAttr"
-                    placeholder="Selector"
-                  />
-                </div>
-                <div class="col-sm-4">
-                  <input
-                    type="text"
-                    class="form-control form-control-sm"
-                    id="selectorValue"
-                    placeholder="Value"
-                  />
-                </div>
-                <div class="col-sm-2">
-                  <button type="button" class="btn btn-danger btn-sm">
-                    Delete
-                  </button>
-                </div>
-    `;
-
-  // # APPEND TEMPLATE TO SELECTOR ELEM
-  selectorElem.innerHTML = template;
-  selectorBody.appendChild(selectorElem);
-}
-
-// # SAVE AUTOFILL CONFIG CONTENT
-// TODO: finish saving autofill confirguation and add data storage for user configuration
-function saveAutoFillConfig(e) {}
 
 // # GENERATE A UNIQUE TASK ID
 function genUniqueID() {

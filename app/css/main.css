@@ -26,6 +26,32 @@ body {
   background: transparent; /* Optional: just make scrollbar invisible */
 }
 
+input {
+    margin-top: 15px;
+	padding:15px 50px;
+	width:auto;
+    border:none;
+    background: #e3e8ee!important;
+	columns: #000000;;
+	cursor:pointer;
+	display:inline-block;
+	clear:right;
+	-webkit-transition:0.2s ease all;
+	   -moz-transition:0.2s ease all;
+	    -ms-transition:0.2s ease all;
+	     -o-transition:0.2s ease all;
+	        transition:0.2s ease all;
+}
+
+input:hover {
+	opacity:0.8;
+}
+
+input:active {
+	opacity:0.4;
+}
+
+
 a {
     text-decoration: none;
     font-size: 13px;
